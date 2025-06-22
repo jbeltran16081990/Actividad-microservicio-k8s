@@ -1,0 +1,11 @@
+image:
+  repository: joaquinbeltran1608/node-microservice
+  pullPolicy: IfNotPresent
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false

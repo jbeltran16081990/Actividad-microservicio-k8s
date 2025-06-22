@@ -1,0 +1,32 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t joaquinbeltran1608/node-microservice .
+          docker push joaquinbeltran1608/node-microservice
+
+      - name: Update Helm chart values (optional)
+        run: |
+          sed -i "s/tag:.*/tag: latest/" helm-node-microservice/values.yaml
+
+      - name: Commit Helm changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add helm-node-microservice/values.yaml
+          git commit -m "update image tag"
+          git push
